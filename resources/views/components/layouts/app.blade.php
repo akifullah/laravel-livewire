@@ -33,7 +33,7 @@
     <header class="navigation bg-tertiary">
         <nav class="navbar navbar-expand-xl navbar-light text-center py-3">
             <div class="container">
-                <a class="navbar-brand" href="{{route("home")}}" wire:navigate >
+                <a class="navbar-brand" href="{{route("home")}}" wire:navigate>
                     <img loading="prelaod" decoding="async" class="img-fluid" width="160"
                         src="{{asset("front/images/logo.png")}}" alt="Wallet">
                 </a>
@@ -44,11 +44,14 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav m-auto mb-2 mb-lg-0">
                         <li class="nav-item"> <a class="nav-link" href="{{route("home")}}" wire:navigate>Home</a></li>
-                        <li class="nav-item "> <a class="nav-link" href="about.html">About Us</a></li>
-                        <li class="nav-item "> <a class="nav-link" href="{{route("services")}}" wire:navigate>Services</a></li>
-                        <li class="nav-item "> <a class="nav-link" href="{{route("teams")}}" wite:navigate>Our Team</a></li>
+                        <li class="nav-item "> <a class="nav-link" href="{{route("page", ["id" => 2])}}"
+                                wire:navigate>About Us</a></li>
+                        <li class="nav-item "> <a class="nav-link" href="{{route("services")}}"
+                                wire:navigate>Services</a></li>
+                        <li class="nav-item "> <a class="nav-link" href="{{route("teams")}}" wite:navigate>Our Team</a>
+                        </li>
                         <li class="nav-item "><a class="nav-link " href="{{route("blogs")}}" wire:navigate>Blog</a></li>
-                        <li class="nav-item "><a class="nav-link " href="faq.html">FAQ</a></li>
+                        <li class="nav-item "><a class="nav-link " href="{{route("faqs")}}" wire:navigate>FAQ</a></li>
                     </ul>
                     <a href="#!" class="btn btn-outline-primary">Contact Us</a>
                 </div>

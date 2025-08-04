@@ -2,26 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FaqResource\Pages;
-use App\Filament\Resources\FaqResource\RelationManagers;
-use App\Models\Faq;
+use App\Filament\Resources\PageResource\Pages;
+use App\Filament\Resources\PageResource\RelationManagers;
+use App\Models\Page;
+use Dom\Text;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class FaqResource extends Resource
+class PageResource extends Resource
 {
-    protected static ?string $model = Faq::class;
+    protected static ?string $model = Page::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -29,12 +29,13 @@ class FaqResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make("question")->required()->placeholder("Enter the question"),
+                TextInput::make("title")->placeholder("Title"),
                 Select::make("status")->options([
-                    1 => "Active",
-                    0 => "Block"
+                    1=>"Active",
+                    0=> "Block"
                 ]),
-                RichEditor::make("answer")->required()->placeholder("Enter the answer")->columnSpanFull(),
+                RichEditor::make("content")->columnSpanFull(),
+                FileUpload::make("image")->columnSpanFull(),
             ]);
     }
 
@@ -42,13 +43,7 @@ class FaqResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make("question"),
-                TextColumn::make("answer"),
-                ToggleColumn::make("status")
-                ->onColor("success")
-                ->offColor("danger")
-                ->onIcon("heroicon-o-check-circle")
-                ->offIcon("heroicon-o-x-circle")
+                TextColumn::make("title")
             ])
             ->filters([
                 //
@@ -73,9 +68,9 @@ class FaqResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFaqs::route('/'),
-            'create' => Pages\CreateFaq::route('/create'),
-            'edit' => Pages\EditFaq::route('/{record}/edit'),
+            'index' => Pages\ListPages::route('/'),
+            'create' => Pages\CreatePage::route('/create'),
+            'edit' => Pages\EditPage::route('/{record}/edit'),
         ];
     }
 }
