@@ -1,21 +1,31 @@
 ---
 deployment:
   tasks:
-    # Path where your live site should be
-    - export DEPLOYPATH=/home/akifulla/public_html/
+    # 1. Path where your live site should be deployed
+    - export DEPLOYPATH=/home/akifulla/public_html
 
-    # Install composer dependencies without dev packages
+    # 2. Run Composer in the repo (not in public_html)
     - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
 
-    # Copy Laravel public folder to public_html
-    - /bin/cp -R public/* $DEPLOYPATH
+    # 3. Copy public folder contents to public_html (don't overwrite .env)
+    - /bin/rsync -av --exclude='.env' public/ $DEPLOYPATH/
 
-    # Set correct permissions for storage and bootstrap cache
-    - /bin/chmod -R 775 storage bootstrap/cache
+    # 4. Copy all Laravel files (except public, .env, vendor) to a secure folder
+    - /bin/rsync -av --exclude='public/' --exclude='.env' --exclude='vendor/' . /home/akifulla/laravel_app/
 
-    # Clear caches and optimize Laravel
-    - php artisan config:clear
-    - php artisan cache:clear
-    - php artisan route:clear
-    - php artisan view:clear
-    - php artisan config:cache
+    # 5. Set proper permissions for Laravel writable directories
+    - /bin/chmod -R 775 /home/akifulla/laravel_app/storage /home/akifulla/laravel_app/bootstrap/cache
+
+    # 6. Link storage to public_html/storage
+    - /bin/ln -s /home/akifulla/laravel_app/storage/app/public $DEPLOYPATH/storage
+
+    # 7. Run Laravel optimizations
+    - php /home/akifulla/laravel_app/artisan config:clear
+    - php /home/akifulla/laravel_app/artisan cache:clear
+    - php /home/akifulla/laravel_app/artisan route:clear
+    - php /home/akifulla/laravel_app/artisan view:clear
+    - php /home/akifulla/laravel_app/artisan config:cache
+    - php /home/akifulla/laravel_app/artisan route:cache
+
+    # 8. Run database migrations automatically (optional)
+    - php /home/akifulla/laravel_app/artisan migrate --force
