@@ -1,5 +1,21 @@
 ---
 deployment:
   tasks:
+    # Path where your live site should be
     - export DEPLOYPATH=/home/akifulla/public_html/
+
+    # Install composer dependencies without dev packages
+    - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
+
+    # Copy Laravel public folder to public_html
     - /bin/cp -R public/* $DEPLOYPATH
+
+    # Set correct permissions for storage and bootstrap cache
+    - /bin/chmod -R 775 storage bootstrap/cache
+
+    # Clear caches and optimize Laravel
+    - php artisan config:clear
+    - php artisan cache:clear
+    - php artisan route:clear
+    - php artisan view:clear
+    - php artisan config:cache
