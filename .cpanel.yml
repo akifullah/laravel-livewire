@@ -1,35 +1,25 @@
 ---
 deployment:
   tasks:
-    # 1. Paths
-    - export APPPATH=/home/akifulla/laravel_app
+    - export APPPATH=/home/akifulla/
     - export DEPLOYPATH=/home/akifulla/public_html
 
-    # 2. Ensure app folder exists
-    - /bin/mkdir -p $APPPATH
-
-    # 3. Copy Laravel files (excluding public, vendor) to app folder
-    - /bin/rsync -av --delete --exclude='public/' --exclude='vendor/' --exclude='.env' ./ $APPPATH/
-
-    # 4. Install Composer dependencies in app folder
+    # Install Composer dependencies
     - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader --working-dir=$APPPATH
 
-    # 5. Copy public folder to web root (do not overwrite .env)
-    - /bin/rsync -av --delete public/ $DEPLOYPATH/
+    # Deploy public folder
+    - /bin/rsync -av --delete $APPPATH/public/ $DEPLOYPATH/
 
-    # 6. Create symlink for storage
+    # Symlink storage
     - /bin/ln -sf $APPPATH/storage/app/public $DEPLOYPATH/storage
 
-    # 7. Set correct permissions
+    # Set permissions
     - /bin/chmod -R 775 $APPPATH/storage $APPPATH/bootstrap/cache
 
-    # 8. Laravel cache clear & rebuild
+    # Clear and cache Laravel config/routes/views
     - php $APPPATH/artisan config:clear
     - php $APPPATH/artisan cache:clear
     - php $APPPATH/artisan route:clear
     - php $APPPATH/artisan view:clear
     - php $APPPATH/artisan config:cache
     - php $APPPATH/artisan route:cache
-
-    # 9. Optional: Run migrations
-    - php $APPPATH/artisan migrate --force
