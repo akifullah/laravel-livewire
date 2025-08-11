@@ -1,31 +1,35 @@
 ---
 deployment:
   tasks:
-    # 1. Path where your live site should be deployed
+    # 1. Paths
+    - export APPPATH=/home/akifulla/laravel_app
     - export DEPLOYPATH=/home/akifulla/public_html
 
-    # 2. Run Composer in the repo (not in public_html)
-    - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
+    # 2. Ensure app folder exists
+    - /bin/mkdir -p $APPPATH
 
-    # 3. Copy public folder contents to public_html (don't overwrite .env)
-    - /bin/rsync -av --exclude='.env' public/ $DEPLOYPATH/
+    # 3. Copy Laravel files (excluding public, vendor) to app folder
+    - /bin/rsync -av --delete --exclude='public/' --exclude='vendor/' --exclude='.env' ./ $APPPATH/
 
-    # 4. Copy all Laravel files (except public, .env, vendor) to a secure folder
-    - /bin/rsync -av --exclude='public/' --exclude='.env' --exclude='vendor/' . /home/akifulla/laravel_app/
+    # 4. Install Composer dependencies in app folder
+    - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader --working-dir=$APPPATH
 
-    # 5. Set proper permissions for Laravel writable directories
-    - /bin/chmod -R 775 /home/akifulla/laravel_app/storage /home/akifulla/laravel_app/bootstrap/cache
+    # 5. Copy public folder to web root (do not overwrite .env)
+    - /bin/rsync -av --delete public/ $DEPLOYPATH/
 
-    # 6. Link storage to public_html/storage
-    - /bin/ln -s /home/akifulla/laravel_app/storage/app/public $DEPLOYPATH/storage
+    # 6. Create symlink for storage
+    - /bin/ln -sf $APPPATH/storage/app/public $DEPLOYPATH/storage
 
-    # 7. Run Laravel optimizations
-    - php /home/akifulla/laravel_app/artisan config:clear
-    - php /home/akifulla/laravel_app/artisan cache:clear
-    - php /home/akifulla/laravel_app/artisan route:clear
-    - php /home/akifulla/laravel_app/artisan view:clear
-    - php /home/akifulla/laravel_app/artisan config:cache
-    - php /home/akifulla/laravel_app/artisan route:cache
+    # 7. Set correct permissions
+    - /bin/chmod -R 775 $APPPATH/storage $APPPATH/bootstrap/cache
 
-    # 8. Run database migrations automatically (optional)
-    - php /home/akifulla/laravel_app/artisan migrate --force
+    # 8. Laravel cache clear & rebuild
+    - php $APPPATH/artisan config:clear
+    - php $APPPATH/artisan cache:clear
+    - php $APPPATH/artisan route:clear
+    - php $APPPATH/artisan view:clear
+    - php $APPPATH/artisan config:cache
+    - php $APPPATH/artisan route:cache
+
+    # 9. Optional: Run migrations
+    - php $APPPATH/artisan migrate --force
